@@ -9,6 +9,8 @@ lerna-debug.log*
 .VITE_API_KEY_FIREBASE.js*
 .VITE_API_KEY_FIREBASE.js
 
+firebase
+firebase.config.js
 node_modules
 old
 .DS_Store
