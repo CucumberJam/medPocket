@@ -1,33 +1,17 @@
 <script setup>
-import InputText from 'primevue/inputtext';
-import Password from 'primevue/password';
+import Message from "primevue/message";
+import InputText from "primevue/inputtext";
 import Button from "primevue/button";
-import Message from 'primevue/message';
 import LoaderComponent from "@/components/UI/LoaderComponent.vue";
-//import {useRouter} from 'vue-router';
-import {ref} from 'vue';
 import {useAuthStore} from "@/stores/auth.js";
-
-
-const email = ref();
-const password = ref();
+import {ref} from "vue";
 
 const authStore = useAuthStore();
-//const router = useRouter();
-const signin = async () => {
-  if(!email.value || !password.value){
-    alert('Please fill all fields.');
-    return;
-  }
-  await authStore.authenticateUser('signin', email.value, password.value);
-  email.value = '';
-  password.value = '';
-}
-
+const email = ref();
 </script>
 
 <template>
-  <h2>Sign In</h2>
+  <h2>Reset password:</h2>
   <Message v-if="authStore.error" severity="error">{{authStore.error}}</Message>
   <form class="form">
     <div class="form__item">
@@ -36,30 +20,12 @@ const signin = async () => {
       </span>
       <InputText type="email" v-model="email" placeholder="Your E-mail"/>
     </div>
-    <div class="form__item">
-      <span>
-        <i class="pi pi-lock"></i>
-      </span>
-      <Password v-model="password" :feedback="false" placeholder="Your Password"/>
-    </div>
     <LoaderComponent v-if="authStore.loader"/>
     <div v-else class="form__item">
-      <span>
-        Are you not registered yet?
-        <br/>
-        <router-link to="/signup">Sign Up</router-link>
-      </span>
-      <Button class="btn" label="SignIn" @click="signin"/>
+      <Button class="btn" label="SignIn" @click="authStore.forgotPassword(email)"/>
     </div>
-    <div class="form__item">
-      <span>
-        Forgot password?
-        <br/>
-        <router-link to="/resetpass">click to recover</router-link>
-      </span>
-    </div>
+    <div></div>
   </form>
-
 </template>
 
 <style scoped>

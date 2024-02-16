@@ -6,7 +6,7 @@ import AnalysesComponent from "@/components/analyses/AnalysesComponent.vue";
 import FormAnalysisComponent from "@/components/analyses/FormAnalysisComponent.vue";
 import LoaderComponent from "@/components/UI/LoaderComponent.vue";
 import Button from "primevue/button";
-import Paginator from 'primevue/paginator';
+import PaginateComponent from "@/components/UI/PaginateComponent.vue";
 import {useAnalysisStore} from "@/stores/analyses.store.js";
 import {ref} from "vue";
 
@@ -49,9 +49,13 @@ const sort = () => {
       </ModalViewComponent>
       <div>
         <LoaderComponent v-if="analyseStore.config.showLoader"/>
-        <AnalysesComponent v-else/>
+        <AnalysesComponent v-else :total-count="analyseStore.totalCount"
+                          :filtered-analyses="analyseStore.filteredAnalyses"/>
       </div>
-    <Paginator :rows="10" :totalRecords="analyseStore.filteredAnalyses.length" :rowsPerPageOptions="[10, 20, 30]"></Paginator>
+    <PaginateComponent :num="analyseStore.getPages"
+                       :chosenPage="analyseStore.config.paginatePage"
+                       @paginate="analyseStore.changePaginate"
+                       @change="analyseStore.changeItemsOnPage"/>
   </main>
 </template>
 
@@ -59,7 +63,7 @@ const sort = () => {
 main{
   display: flex;
   flex-direction: column;
-
+  margin-bottom: 60px;
 }
 .title h3{
   margin: 0;

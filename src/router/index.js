@@ -5,6 +5,7 @@ import SignIn from "@/views/SignIn.vue";
 import ProfileView from "@/views/ProfileView.vue";
 import MainAnalyseComponent from "@/components/analyses/MainAnalyseComponent.vue";
 import MainMedComponent from "@/components/medications/MainMedComponent.vue";
+import ForgotPasswordView from "@/views/ForgotPasswordView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -23,6 +24,11 @@ const router = createRouter({
       path: '/signin',
       name: 'signin',
       component: SignIn
+    },
+    {
+      path: '/resetpass',
+      name: 'resetpass',
+      component: ForgotPasswordView
     },
     {
       path: '/profile',

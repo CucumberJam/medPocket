@@ -89,6 +89,7 @@ onMounted(() => {
     <main class="container">
       <RouterView />
     </main>
+  <footer ></footer>
 </template>
 
 <style scoped>
@@ -105,6 +106,16 @@ header {
   max-height: 100vh;
   margin-right: 30px;
   margin-left: 30px;
+}
+footer{
+  background-color: #8B5CF6;
+  width: 100%;
+  max-height: 100vh;
+  height: 40px;
+  margin: 40px 30px 0 30px;
+  opacity: 85%;
+  position: fixed;
+  bottom: 0;
 }
 .wrapper nav {
   height: 100%;

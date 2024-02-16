@@ -1,8 +1,10 @@
 <script setup>
 import AnalysisComponent from "@/components/analyses/AnalysisComponent.vue";
-import {useAnalysisStore} from "@/stores/analyses.store.js";
 
-const analyseStore = useAnalysisStore();
+const props = defineProps({
+  totalCount: Number,
+  filteredAnalyses: Array,
+})
 </script>
 
 <template>
@@ -19,13 +21,13 @@ const analyseStore = useAnalysisStore();
     </tr>
     </thead>
     <tbody>
-      <AnalysisComponent v-for="elem in analyseStore.filteredAnalyses"
+      <AnalysisComponent v-for="elem in filteredAnalyses"
                        :key="elem.id" :analysis="elem"/>
     </tbody>
   </table>
   <div class="total">
     <p>Total cost: </p>
-    <p>{{analyseStore.totalCount}} RUB</p>
+    <p>{{totalCount}} RUB</p>
   </div>
 </template>
 

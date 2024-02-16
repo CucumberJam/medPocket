@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import {computed, ref,} from "vue";
-import {doc, addDoc, collection, getCountFromServer, getDocs, query, updateDoc, deleteDoc, onSnapshot} from "firebase/firestore";
+import {doc, addDoc, collection, getCountFromServer, getDocs, updateDoc, deleteDoc} from "firebase/firestore";
 import {db} from "@/firebase/firebase.config.js";
 import {useAuthStore} from "@/stores/auth.js";
 import colors from '../assets/colors.js';
@@ -14,7 +14,9 @@ export const useAnalysisStore = defineStore('analyse', () => {
         error: '',
         success: '',
         showForm: false,
-        showLoader: false
+        showLoader: false,
+        paginatePage: 1,
+        paginateAmount: 10
     });
     const authStore = useAuthStore();
     const user = computed (() => authStore.user);
@@ -30,6 +32,29 @@ export const useAnalysisStore = defineStore('analyse', () => {
         }
         config.value.showLoader = false;
     }
+    const getPages= computed(() => {
+        return Math.ceil(filteredAnalyses.value.length / config.value.paginateAmount);
+    });
+    const filteredByPagination = computed(() => {
+        if(filteredAnalyses.value.length >= config.value.paginatePage){
+            let start = (config.value.paginatePage - 1) * config.value.paginateAmount;
+            let end = config.value.paginatePage * config.value.paginateAmount - 1;
+
+            return filteredAnalyses.value.filter((item, ind)=> {
+                return ind >= start && ind <= end;
+            });
+        }
+        return filteredAnalyses.value;
+    });
+    const changePaginate = (num) => {
+        if(num < 1) num = getPages.value;
+        else if(num > getPages.value) num = 1;
+
+        config.value.paginatePage = num;
+    }
+    const changeItemsOnPage = (num) => {
+        config.value.paginateAmount = num;
+    };
     const add = async (newAnalysis) => {
         const userRef = doc(db, 'users', user.value.id);
         let found =
@@ -115,7 +140,8 @@ export const useAnalysisStore = defineStore('analyse', () => {
     });
 
     return {
-        config, user, analyses, filteredAnalyses,
+        config, user, analyses, filteredByPagination, filteredAnalyses,
+        getPages, changePaginate, changeItemsOnPage,
         toggleShow, getAllAnalyses, deleteAnalysis, changeMinMax,
         add, filter, isDangerSub, totalCount, chartAnalysesConfig, filteredKeys
     }

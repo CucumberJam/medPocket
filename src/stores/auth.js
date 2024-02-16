@@ -6,7 +6,7 @@ import { getAuth,
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
     onAuthStateChanged,
-    signOut} from "firebase/auth";
+    signOut, sendPasswordResetEmail} from "firebase/auth";
 import {useRouter} from "vue-router";
 import {useAnalysisStore} from "@/stores/analyses.store.js";
 import {useMedicationStore} from "@/stores/medications.store.js";
@@ -74,6 +74,14 @@ export const useAuthStore = defineStore('auth', () => {
             console.log('Sign-out successful.');
         }).catch(errorHandler);
     }
+
+    const forgotPassword = (emailInput) => {
+        sendPasswordResetEmail(auth, emailInput)
+            .then(()=> {
+                alert('A password reset link has been sent to your email')
+            })
+            .catch(error => console.log(error));
+    }
     const init = () => {
         onAuthStateChanged(auth, async (userCredentials) => {
             console.log('auth state changed: ' + userCredentials);
@@ -100,15 +108,14 @@ export const useAuthStore = defineStore('auth', () => {
             }
         });
     }
-
+    const errorHandler = async (err) => {
+        error.value = err.message;
+        setTimeout(() => {
+            error.value = '';
+        }, 3000);
+        throw error.value;
+    }
     return {authenticateUser, logOut, init,
-        error, loader, success, isLoggedIn, user, mode}
+        error, loader, success, isLoggedIn, user, mode, forgotPassword}
 });
 
-const errorHandler = async (error) => {
-    error.value = error.message;
-    setTimeout(() => {
-        error.value = '';
-    }, 3000);
-    throw error.value;
-}
