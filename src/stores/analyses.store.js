@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import {computed, ref,} from "vue";
-import {doc, addDoc, collection, getCountFromServer, getDocs, updateDoc, deleteDoc} from "firebase/firestore";
+import {doc, addDoc, collection, getCountFromServer, getDocs, query, updateDoc, deleteDoc, onSnapshot} from "firebase/firestore";
 import {db} from "@/firebase/firebase.config.js";
 import {useAuthStore} from "@/stores/auth.js";
 import colors from '../assets/colors.js';
@@ -203,6 +203,21 @@ const upDateAnalysis = async(analysisRef, oldAnalysis = null, newAnalysis = null
 const getAnalyses = async (userId) => {
     let array = [];
     try{
+        //through query shapShot (update data automatically:
+/*        const q = query(collection(db, 'users', userId, 'analyses'));
+        onSnapshot(q, (querySnapshot) => {
+            let array = [];
+            querySnapshot.forEach((doc) => {
+                let analysis = {
+                    id: doc.id,
+                    ...doc.data()
+                };
+                array.push(analysis);
+            });
+            return array;
+        }, error => console.log(error));*/
+
+        // simple get data from DB:
         const queryAnalyses = await getDocs(collection(db, 'users', userId, 'analyses'));
         queryAnalyses.forEach( (doc) => {
             let analysis = {

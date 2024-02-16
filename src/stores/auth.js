@@ -91,7 +91,8 @@ export const useAuthStore = defineStore('auth', () => {
                 await analyseStore.getAllAnalyses();
                 await medicalStore.getMedications();
 
-                router.push('/profile');
+                //router.push('/profile');
+                router.push({path: 'analyses'});
             }else{
                 user.value = {};
                 isLoggedIn.value = false;

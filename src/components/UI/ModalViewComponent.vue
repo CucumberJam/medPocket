@@ -25,7 +25,7 @@ const props = defineProps({
 <style scoped>
 .modal-box{
   position: absolute;
-  margin: 0 15%;
+  margin: 0 20%;
   top: 10%;
   z-index: 5;
 
@@ -52,5 +52,29 @@ const props = defineProps({
   top: -15px;
   opacity: 25%;
   width: 5px;
+}
+@media screen and (max-width: 668px){
+  .modal-box{
+    max-width: 300px;
+    min-height: 400px;
+    padding: 20px;
+    margin: 0 15%;
+  }
+  .modal-box h3{
+    margin: 5px 0;
+  }
+  .modal-box form{
+    font-size: 12px;
+  }
+}
+@media screen and (max-width: 453px){
+  .modal-box{
+    margin: 0 5%;
+  }
+}
+@media screen and (max-width: 380px){
+  .modal-box{
+    margin: 0 2%;
+  }
 }
 </style>
