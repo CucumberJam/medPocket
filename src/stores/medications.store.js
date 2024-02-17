@@ -21,6 +21,7 @@ export const useMedicationStore = defineStore('medications', () => {
         paginatePage: 1,
         paginateAmount: 10
     });
+    const unsubscribe = ref(null);
     const authStore = useAuthStore();
     const toggleShow = () =>{
         config.value.showForm = !config.value.showForm;
@@ -42,8 +43,6 @@ export const useMedicationStore = defineStore('medications', () => {
         }catch (e) {
             console.log('error while getting all analyses from DB: '+ e)
         }
-
-
         medications.value = [...array];
         filteredMedications.value = array.sort((a, b) => new Date(b.date) - new Date(a.date));
 
@@ -61,7 +60,7 @@ export const useMedicationStore = defineStore('medications', () => {
 
         config.value.showLoader = false;
 
-        const unsubscribe = onSnapshot(q, (snapshot) => {
+        unsubscribe.value = onSnapshot(q, (snapshot) => {
             snapshot.docChanges().forEach((change) => {
                 if (change.type === "added") {
                     console.log("New medication: ", change.doc.data());
@@ -74,10 +73,9 @@ export const useMedicationStore = defineStore('medications', () => {
                 }
             }, (error) => {
                 console.log("Error in snapchat city: ", error);
-                unsubscribe();
+                unsubscribe.value();
             });
         });
-
     }
     const add = async(newMed) => {
         const userRef = doc(db, 'users', authStore.user.id);
@@ -101,7 +99,6 @@ export const useMedicationStore = defineStore('medications', () => {
     const remove = async(med) => {
         try{
             await deleteDoc(doc(db, 'users', authStore.user.id, 'medications', med.id));
-
         }catch (e) {
             console.log('Error while deleting medication from DB: ' + e);
         }
@@ -186,6 +183,7 @@ export const useMedicationStore = defineStore('medications', () => {
     return {
         filteredMedications,  config, totalCount, chartMedicationsConfig,
         getMedications, toggleShow, add, remove, filter, filteredKeys,
-        getPages, filteredByPagination, changePaginate, changeItemsOnPage
+        getPages, filteredByPagination, changePaginate, changeItemsOnPage,
+        unsubscribe
     }
 });

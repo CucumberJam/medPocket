@@ -8,7 +8,7 @@ import {
     getDocs,
     updateDoc,
     deleteDoc,
-    query,
+    query, onSnapshot,
 } from "firebase/firestore";
 import {db} from "@/firebase/firebase.config.js";
 import {useAuthStore} from "@/stores/auth.js";
@@ -26,12 +26,13 @@ export const useAnalysisStore = defineStore('analyse', () => {
         paginatePage: 1,
         paginateAmount: 10
     });
+    const unsubscribe = ref(null);
     const authStore = useAuthStore();
     const user = computed (() => authStore.user);
 
     const getAllAnalyses = async() => {
         config.value.showLoader = true;
-        let array = await getAnalyses(user.value.id);
+        let array = await getAnalyses(user.value.id, unsubscribe.value);
         await getAnalysesSubList(user.value.id, array);
         if(array.length){
             analyses.value = [...array];
@@ -154,7 +155,8 @@ export const useAnalysisStore = defineStore('analyse', () => {
         config, user, analyses, filteredByPagination, filteredAnalyses,
         getPages, changePaginate, changeItemsOnPage,
         toggleShow, getAllAnalyses, deleteAnalysis, changeMinMax,
-        add, filter, isDangerSub, totalCount, chartAnalysesConfig, filteredKeys
+        add, filter, isDangerSub, totalCount, chartAnalysesConfig, filteredKeys,
+        unsubscribe
     }
 })
 
@@ -237,7 +239,7 @@ const upDateAnalysis = async(analysisRef, oldAnalysis = null, newAnalysis = null
     }
 
 }
-const getAnalyses = async (userId) => {
+const getAnalyses = async (userId, unsubscribe) => {
     let array = [];
     const q = query(collection(db, 'users', userId, 'analyses'));
     try{
@@ -249,7 +251,7 @@ const getAnalyses = async (userId) => {
             };
             array.push(analysis);
         });
-
+        updateRealTimeDB(q, unsubscribe);
     }catch (e) {
         console.log('error while getting all analyses from DB: '+ e)
     }
@@ -305,9 +307,9 @@ const updateSingleKeyAnalysis = async (analysisRef, key, value)=>{
 }
 
 
-/*
-const updateRealTimeDB = (query) => {
-    const unsubscribe = onSnapshot(query, (snapshot) => {
+
+const updateRealTimeDB = (query, unsubscribe) => {
+    unsubscribe = onSnapshot(query, (snapshot) => {
         snapshot.docChanges().forEach((change) => {
             console.log("Chane in snapchat analysis: ", change);
         }, (error) => {
@@ -315,4 +317,4 @@ const updateRealTimeDB = (query) => {
             unsubscribe();
         });
     });
-}*/
+}

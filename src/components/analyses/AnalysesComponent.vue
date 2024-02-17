@@ -1,7 +1,7 @@
 <script setup>
 import AnalysisComponent from "@/components/analyses/AnalysisComponent.vue";
 
-const props = defineProps({
+defineProps({
   totalCount: Number,
   filteredAnalyses: Array,
 })

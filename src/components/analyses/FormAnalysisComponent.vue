@@ -15,11 +15,11 @@ const newAnalysis = ref({
   cost: ''
 });
 const analyseStore = useAnalysisStore();
-const add = () => {
+const add = async () => {
   if(checkFields.value){
     analyseStore.config.success = 'Thank you!';
     let corrected = formatData.value;
-    analyseStore.add(corrected);
+    await analyseStore.add(corrected);
   }else{
     analyseStore.config.error = checkFields.value.error;
   }
@@ -65,7 +65,6 @@ const clear = () => {
 
 
 <template>
-  <Transition name="fade" >
   <form>
     <div class="flex flex-column gap-2">
       <label for="analysisName">Analysis name:</label>
@@ -95,7 +94,6 @@ const clear = () => {
       <Button class="btn" label="Add" @click="add"/>
     </div>
   </form>
-  </Transition>
 </template>
 
 <style scoped>

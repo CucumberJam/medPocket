@@ -27,6 +27,11 @@ const sort = () =>{
   }
   isSorting.value = false;
 }
+const logOut = () => {
+  analysesStore.unsubscribe();
+  medicalStore.unsubscribe();
+  authStore.logOut();
+}
 
 onMounted(() => {
   authStore.init();
@@ -75,7 +80,7 @@ onMounted(() => {
                 <RouterLink to="/signup">SignUp</RouterLink>
               </li>
               <li class="menu-list-item" v-if="authStore.isLoggedIn"
-                  @click.prevent="authStore.logOut">
+                  @click.prevent="logOut">
                 <a href="#" class="nav-link">Log out</a>
               </li>
               <li class="menu-list-item" v-else>
@@ -89,7 +94,6 @@ onMounted(() => {
     <main class="container">
       <RouterView />
     </main>
-    <div class="push"></div>
   <footer ></footer>
 </template>
 

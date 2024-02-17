@@ -71,6 +71,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
     const logOut = () => {
         signOut(auth).then(async () => {
+
             console.log('Sign-out successful.');
         }).catch(errorHandler);
     }
