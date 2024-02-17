@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import {computed, ref} from "vue";
-import {addDoc, collection, deleteDoc, doc, getDocs} from "firebase/firestore";
+import {addDoc, collection, deleteDoc, doc, getDocs, query, onSnapshot} from "firebase/firestore";
 import {db} from "@/firebase/firebase.config.js";
 import {useAuthStore} from "@/stores/auth.js";
 import colors from "@/assets/colors.js";
@@ -29,8 +29,9 @@ export const useMedicationStore = defineStore('medications', () => {
         config.value.showLoader = true;
 
         let array = [];
+        const q = query(collection(db, 'users', authStore.user.id, 'medications'));
         try{
-            const queryMedications = await getDocs(collection(db, 'users', authStore.user.id, 'medications'));
+            const queryMedications = await getDocs(q);
             queryMedications.forEach( (doc) => {
                 let medication = {
                     id: doc.id,
@@ -41,6 +42,7 @@ export const useMedicationStore = defineStore('medications', () => {
         }catch (e) {
             console.log('error while getting all analyses from DB: '+ e)
         }
+
 
         medications.value = [...array];
         filteredMedications.value = array.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -58,6 +60,24 @@ export const useMedicationStore = defineStore('medications', () => {
         filteredKeys.value.patients = Array.from(patients);
 
         config.value.showLoader = false;
+
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            snapshot.docChanges().forEach((change) => {
+                if (change.type === "added") {
+                    console.log("New medication: ", change.doc.data());
+                }
+                if (change.type === "modified") {
+                    console.log("Modified medication: ", change.doc.data());
+                }
+                if (change.type === "removed") {
+                    console.log("Removed medication: ", change.doc.data());
+                }
+            }, (error) => {
+                console.log("Error in snapchat city: ", error);
+                unsubscribe();
+            });
+        });
+
     }
     const add = async(newMed) => {
         const userRef = doc(db, 'users', authStore.user.id);
@@ -73,6 +93,7 @@ export const useMedicationStore = defineStore('medications', () => {
                 id_user: authStore.user.id
             });
             console.log("New analysis was written in DB analyses! " + medRef.id);
+
         }catch (e) {
             console.error("Error adding analysisDoc in collection: ", e);
         }
@@ -80,6 +101,7 @@ export const useMedicationStore = defineStore('medications', () => {
     const remove = async(med) => {
         try{
             await deleteDoc(doc(db, 'users', authStore.user.id, 'medications', med.id));
+
         }catch (e) {
             console.log('Error while deleting medication from DB: ' + e);
         }

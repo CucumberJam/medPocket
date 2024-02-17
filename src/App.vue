@@ -36,7 +36,7 @@ onMounted(() => {
 
 <template>
     <header>
-      <div class="wrapper">
+      <div class="wrapper-head">
         <nav>
           <div class="nav_item">
             <h2>PocketMed</h2>
@@ -46,10 +46,10 @@ onMounted(() => {
             <InputText class="input-search" id="search" placeholder="Search..."
                        v-model="query"
                        @input.prevent='sort'/>
-              <div class="search-icon">
-                <i v-if="!isSorting" class="pi pi-search" style="color: #708090"></i>
-                <i v-else class="pi pi-spin pi-spinner" style="color: #708090"></i>
-              </div>
+            <div class="search-icon">
+              <i v-if="!isSorting" class="pi pi-search" style="color: #708090"></i>
+              <i v-else class="pi pi-spin pi-spinner" style="color: #708090"></i>
+            </div>
           </div>
           <div  class="nav_item nav-bar">
             <RouterLink to="/">Home</RouterLink>
@@ -89,6 +89,7 @@ onMounted(() => {
     <main class="container">
       <RouterView />
     </main>
+    <div class="push"></div>
   <footer ></footer>
 </template>
 
@@ -101,23 +102,29 @@ onMounted(() => {
 body{
   font-family: 'Arial', 'sans-serif';
 }
+html, body {
+  min-height: 100vh;
+  margin: 0;
+}
+
 header {
   line-height: 1.5;
   max-height: 100vh;
   margin-right: 30px;
   margin-left: 30px;
 }
+.push {
+  height: 50px;
+}
 footer{
   background-color: #8B5CF6;
   width: 100%;
-  max-height: 100vh;
-  height: 40px;
-  margin: 40px 30px 0 30px;
+  height: 50px;
   opacity: 85%;
-  position: fixed;
-  bottom: 0;
+  margin: auto 30px 0 30px;
 }
-.wrapper nav {
+
+.wrapper-head nav {
   height: 100%;
   background: #8B5CF6;;
   opacity:85%;

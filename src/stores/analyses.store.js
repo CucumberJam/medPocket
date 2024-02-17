@@ -1,6 +1,15 @@
 import { defineStore } from 'pinia'
 import {computed, ref,} from "vue";
-import {doc, addDoc, collection, getCountFromServer, getDocs, updateDoc, deleteDoc} from "firebase/firestore";
+import {
+    doc,
+    addDoc,
+    collection,
+    getCountFromServer,
+    getDocs,
+    updateDoc,
+    deleteDoc,
+    query,
+} from "firebase/firestore";
 import {db} from "@/firebase/firebase.config.js";
 import {useAuthStore} from "@/stores/auth.js";
 import colors from '../assets/colors.js';
@@ -230,23 +239,9 @@ const upDateAnalysis = async(analysisRef, oldAnalysis = null, newAnalysis = null
 }
 const getAnalyses = async (userId) => {
     let array = [];
+    const q = query(collection(db, 'users', userId, 'analyses'));
     try{
-        //through query shapShot (update data automatically:
-/*        const q = query(collection(db, 'users', userId, 'analyses'));
-        onSnapshot(q, (querySnapshot) => {
-            let array = [];
-            querySnapshot.forEach((doc) => {
-                let analysis = {
-                    id: doc.id,
-                    ...doc.data()
-                };
-                array.push(analysis);
-            });
-            return array;
-        }, error => console.log(error));*/
-
-        // simple get data from DB:
-        const queryAnalyses = await getDocs(collection(db, 'users', userId, 'analyses'));
+        const queryAnalyses = await getDocs(q);
         queryAnalyses.forEach( (doc) => {
             let analysis = {
                 id: doc.id,
@@ -254,6 +249,7 @@ const getAnalyses = async (userId) => {
             };
             array.push(analysis);
         });
+
     }catch (e) {
         console.log('error while getting all analyses from DB: '+ e)
     }
@@ -264,7 +260,8 @@ const getAnalysesSubList = async (userId, array) =>{
         // по id получить список под-коллекции анализа и добавить ему в свойство list:
         for(const analysis of array){
             let subArray = [];
-            const querySubList = await getDocs(collection(db, 'users', userId, 'analyses', analysis.id, 'list'));
+            const q = query(collection(db, 'users', userId, 'analyses', analysis.id, 'list'));
+            const querySubList = await getDocs(q);
             querySubList.forEach((doc) => {
                 let analysisList = {
                     id: doc.id,
@@ -282,7 +279,8 @@ const getAnalysesSubList = async (userId, array) =>{
 const getAnalysisSubList = async (analysisRef) =>{
     let subArray = [];
     try{
-        const querySubList = await getDocs(collection(analysisRef, 'list'));
+        const q = query(collection(analysisRef, 'list'));
+        const querySubList = await getDocs(q);
         querySubList.forEach((doc) => {
             let analysisList = {
                 id: doc.id,
@@ -305,3 +303,16 @@ const updateSingleKeyAnalysis = async (analysisRef, key, value)=>{
         console.log('Error while changing min of analysis in DB: ' + e);
     }
 }
+
+
+/*
+const updateRealTimeDB = (query) => {
+    const unsubscribe = onSnapshot(query, (snapshot) => {
+        snapshot.docChanges().forEach((change) => {
+            console.log("Chane in snapchat analysis: ", change);
+        }, (error) => {
+            console.log("Error in snapchat analysis: ", error);
+            unsubscribe();
+        });
+    });
+}*/

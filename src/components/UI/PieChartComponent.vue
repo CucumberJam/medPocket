@@ -12,6 +12,7 @@ defineProps({
       required: true,
       default: ['VueJs', 'EmberJs', 'ReactJs', 'AngularJs'],
     },
+
     datasets: [
       {
         backgroundColor: {
@@ -30,12 +31,17 @@ defineProps({
 const chartOptions = ref({
   responsive: true,
   maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      position: 'left right'
+    }
+  }
 });
 
 </script>
 
 <template>
-    <Pie :data="chartData" :options="chartOptions"/>
+    <Pie :data="chartData" :options="chartOptions"  class="w-full md:w-20rem" />
 </template>
 
 <style scoped>
