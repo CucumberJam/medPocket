@@ -50,7 +50,7 @@ const sort = () => {
       <div>
         <LoaderComponent v-if="analyseStore.config.showLoader"/>
         <AnalysesComponent v-else :total-count="analyseStore.totalCount"
-                          :filtered-analyses="analyseStore.filteredAnalyses"/>
+                          :filtered-analyses="analyseStore.filteredByPagination"/>
       </div>
     <PaginateComponent :num="analyseStore.getPages"
                        :chosenPage="analyseStore.config.paginatePage"

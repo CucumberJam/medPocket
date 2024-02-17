@@ -9,7 +9,6 @@ export const useAnalysisStore = defineStore('analyse', () => {
     const analyses =  ref([]);
     const filteredAnalyses = ref([]);
     const filteredKeys = ref([]);
-
     const config = ref({
         error: '',
         success: '',
@@ -35,8 +34,11 @@ export const useAnalysisStore = defineStore('analyse', () => {
     const getPages= computed(() => {
         return Math.ceil(filteredAnalyses.value.length / config.value.paginateAmount);
     });
+    const needsPaginate = computed(()=> {
+        return filteredAnalyses.value.length >= config.value.paginatePage;
+    });
     const filteredByPagination = computed(() => {
-        if(filteredAnalyses.value.length >= config.value.paginatePage){
+        if(needsPaginate.value){
             let start = (config.value.paginatePage - 1) * config.value.paginateAmount;
             let end = config.value.paginatePage * config.value.paginateAmount - 1;
 

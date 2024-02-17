@@ -21,7 +21,7 @@ const medicalStore = useMedicationStore();
     </tr>
     </thead>
     <tbody>
-    <MedicationComponent v-for="elem in medicalStore.filteredMedications"
+    <MedicationComponent v-for="elem in medicalStore.filteredByPagination"
                        :key="elem.id" :medication="elem"
                         @delete="medicalStore.remove(elem)"/>
     </tbody>

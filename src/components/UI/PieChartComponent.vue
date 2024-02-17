@@ -5,7 +5,7 @@ import {ref} from "vue";
 
 ChartJS.register(Title, Tooltip, Legend, ArcElement);
 
-const props = defineProps({
+defineProps({
   chartData: {
     labels: {
       type: Array,

@@ -4,21 +4,22 @@ import {addDoc, collection, deleteDoc, doc, getDocs} from "firebase/firestore";
 import {db} from "@/firebase/firebase.config.js";
 import {useAuthStore} from "@/stores/auth.js";
 import colors from "@/assets/colors.js";
+
 export const useMedicationStore = defineStore('medications', () => {
     const medications =  ref([]);
     const filteredMedications =  ref([]);
-
     const filteredKeys = ref({
         names: [],
         doctors: [],
         patients: []
     });
-
     const config = ref({
         error: '',
         success: '',
         showForm: false,
-        showLoader: false
+        showLoader: false,
+        paginatePage: 1,
+        paginateAmount: 10
     });
     const authStore = useAuthStore();
     const toggleShow = () =>{
@@ -133,9 +134,36 @@ export const useMedicationStore = defineStore('medications', () => {
         filteredMedications.value = [...array];
     }
 
+    const getPages= computed(() => {
+        return Math.ceil(filteredMedications.value.length / config.value.paginateAmount);
+    });
+    const needsPaginate = computed(()=> {
+        return filteredMedications.value.length >= config.value.paginatePage;
+    });
+    const filteredByPagination = computed(() => {
+        if(needsPaginate.value){
+            let start = (config.value.paginatePage - 1) * config.value.paginateAmount;
+            let end = config.value.paginatePage * config.value.paginateAmount - 1;
+
+            return filteredMedications.value.filter((item, ind)=> {
+                return ind >= start && ind <= end;
+            });
+        }
+        return filteredMedications.value;
+    });
+    const changePaginate = (num) => {
+        if(num < 1) num = getPages.value;
+        else if(num > getPages.value) num = 1;
+
+        config.value.paginatePage = num;
+    }
+    const changeItemsOnPage = (num) => {
+        config.value.paginateAmount = num;
+    };
 
     return {
         filteredMedications,  config, totalCount, chartMedicationsConfig,
-        getMedications, toggleShow, add, remove, filter, filteredKeys
+        getMedications, toggleShow, add, remove, filter, filteredKeys,
+        getPages, filteredByPagination, changePaginate, changeItemsOnPage
     }
 });

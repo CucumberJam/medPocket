@@ -6,9 +6,9 @@ import LoaderComponent from "@/components/UI/LoaderComponent.vue";
 import Button from "primevue/button";
 import FormMedicationComponent from "@/components/medications/FormMedicationComponent.vue";
 import MedicationsComponent from "@/components/medications/MedicationsComponent.vue";
-import Paginator from 'primevue/paginator';
 import {useMedicationStore} from "@/stores/medications.store.js";
 import {ref} from "vue";
+import PaginateComponent from "@/components/UI/PaginateComponent.vue";
 
 
 const medicalStore = useMedicationStore();
@@ -69,7 +69,10 @@ const sort = () => {
         <LoaderComponent v-if="medicalStore.config.showLoader"/>
         <MedicationsComponent/>
       </div>
-    <Paginator :rows="10" :totalRecords="medicalStore.filteredMedications.length" :rowsPerPageOptions="[10, 20, 30]"></Paginator>
+    <PaginateComponent :num="medicalStore.getPages"
+                       :chosenPage="medicalStore.config.paginatePage"
+                       @paginate="medicalStore.changePaginate"
+                       @change="medicalStore.changeItemsOnPage"/>
   </main>
 
 </template>

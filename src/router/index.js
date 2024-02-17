@@ -1,11 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-import SignUp from "@/views/SignUp.vue";
-import SignIn from "@/views/SignIn.vue";
-import ProfileView from "@/views/ProfileView.vue";
-import MainAnalyseComponent from "@/components/analyses/MainAnalyseComponent.vue";
-import MainMedComponent from "@/components/medications/MainMedComponent.vue";
-import ForgotPasswordView from "@/views/ForgotPasswordView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -18,32 +12,32 @@ const router = createRouter({
     {
       path: '/signup',
       name: 'signup',
-      component: SignUp
+      component: ()=> import("@/views/SignUp.vue")
     },
     {
       path: '/signin',
       name: 'signin',
-      component: SignIn
+      component: () => import("@/views/SignIn.vue")
     },
     {
       path: '/resetpass',
       name: 'resetpass',
-      component: ForgotPasswordView
+      component: () => import("@/views/ForgotPasswordView.vue")
     },
     {
       path: '/profile',
       name: 'profile',
-      component: ProfileView,
+      component: () => import("@/views/ProfileView.vue"),
       children: [
         {
           path: '/analyses',
           name: 'analyses',
-          component: MainAnalyseComponent
+          component: () => import("@/components/analyses/MainAnalyseComponent.vue")
         },
         {
           path: '/medications',
           name: 'medications',
-          component: MainMedComponent
+          component: () => import("@/components/medications/MainMedComponent.vue")
         }
       ]
     }
