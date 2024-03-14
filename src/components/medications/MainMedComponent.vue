@@ -12,6 +12,7 @@ import PaginateComponent from "@/components/UI/PaginateComponent.vue";
 
 
 const medicalStore = useMedicationStore();
+
 const selectedFilterMed = ref({
   name: '',
   doctor: '',

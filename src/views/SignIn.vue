@@ -4,7 +4,6 @@ import Password from 'primevue/password';
 import Button from "primevue/button";
 import Message from 'primevue/message';
 import LoaderComponent from "@/components/UI/LoaderComponent.vue";
-//import {useRouter} from 'vue-router';
 import {ref} from 'vue';
 import {useAuthStore} from "@/stores/auth.js";
 
@@ -13,7 +12,6 @@ const email = ref();
 const password = ref();
 
 const authStore = useAuthStore();
-//const router = useRouter();
 const signin = async () => {
   if(!email.value || !password.value){
     alert('Please fill all fields.');

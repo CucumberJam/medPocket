@@ -3,12 +3,12 @@
 </script>
 
 <template>
-  <div class="title">
-    <h3>Get start</h3>
-    <span>keeping information about your analyses, medications</span>
-  </div>
-  <div class="image-box">
-    <img class="image" src='/pexels-anna-shvets-3683039.jpg' alt='image'/>
+    <div class="image-box">
+      <div class="title">
+        <h3>Get start</h3>
+        <span>keeping information about your analyses, medications</span>
+      </div>
+      <img class="image" src='/pexels-anna-shvets-3683039.jpg' alt='image'/>
   </div>
 
 </template>
@@ -18,10 +18,11 @@
   margin: 20px auto;
   max-width: 1000px;
   position: relative;
+  z-index: -1;
 }
 .image{
   width: 100%;
-  height: auto;
+  height: auto;;
   max-height: 800px;
   object-fit: cover;
   opacity: 70%;

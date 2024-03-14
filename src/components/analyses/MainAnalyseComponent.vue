@@ -20,7 +20,7 @@ const sort = () => {
 
 <template>
   <main>
-    <div class="chart-box">
+      <div class="chart-box">
       <div class="total-head">
         <div class="btn-add mob-btn">
           <Button class="btn" label="Add new analysis" @click="analyseStore.toggleShow"/>
@@ -52,7 +52,7 @@ const sort = () => {
         <AnalysesComponent v-else :total-count="analyseStore.totalCount"
                           :filtered-analyses="analyseStore.filteredByPagination"/>
       </div>
-    <PaginateComponent :num="analyseStore.getPages"
+      <PaginateComponent :num="analyseStore.getPages"
                        :chosenPage="analyseStore.config.paginatePage"
                        @paginate="analyseStore.changePaginate"
                        @change="analyseStore.changeItemsOnPage"/>
@@ -64,6 +64,7 @@ main{
   display: flex;
   flex-direction: column;
   margin-bottom: 60px;
+  overflow: visible;
 }
 .title h3{
   margin: 0;

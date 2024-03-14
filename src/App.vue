@@ -1,32 +1,18 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterView } from 'vue-router'
 import 'primeicons/primeicons.css'
 import {useAuthStore} from './stores/auth.js';
 import {useAnalysisStore} from "@/stores/analyses.store.js";
 import {useMedicationStore} from "@/stores/medications.store.js";
-import {onMounted, ref} from "vue";
-import InputText from 'primevue/inputtext';
+import {onMounted} from "vue";
+import HeaderComponent from "@/components/UI/HeaderComponent.vue";
+
 
 const authStore = useAuthStore();
 const analysesStore = useAnalysisStore();
 const medicalStore = useMedicationStore();
 
-const query = ref('');
-const isSorting = ref(false);
 
-const showBurger = ref(false);
-const toggleBurger = () => {
-  showBurger.value = !showBurger.value;
-}
-const sort = () =>{
-  isSorting.value = true;
-  if(authStore.mode === 'Analyses'){
-    analysesStore.filter(query.value);
-  } else{
-    medicalStore.filter({name: query.value, doctor: '', patient: ''});
-  }
-  isSorting.value = false;
-}
 const logOut = () => {
   analysesStore.unsubscribe();
   medicalStore.unsubscribe();
@@ -40,61 +26,19 @@ onMounted(() => {
 </script>
 
 <template>
-    <header>
-      <div class="wrapper-head">
-        <nav>
-          <div class="nav_item">
-            <h2>PocketMed</h2>
-          </div>
-          <div v-if="analysesStore.user.id" class="nav_item search-box">
-            <label for="search" style="font-size: 12px; padding-top: 0"></label>
-            <InputText class="input-search" id="search" placeholder="Search..."
-                       v-model="query"
-                       @input.prevent='sort'/>
-            <div class="search-icon">
-              <i v-if="!isSorting" class="pi pi-search" style="color: #708090"></i>
-              <i v-else class="pi pi-spin pi-spinner" style="color: #708090"></i>
-            </div>
-          </div>
-          <div  class="nav_item nav-bar">
-            <RouterLink to="/">Home</RouterLink>
-            <RouterLink to="/profile" v-if="authStore.isLoggedIn">Profile</RouterLink>
-            <RouterLink to="/signup" v-else>SignUp</RouterLink>
-            <div class="logout" v-if="authStore.isLoggedIn" @click.prevent="authStore.logOut">
-              <i class="pi pi-sign-out" style="font-size: 1.5rem"></i>
-            </div>
-            <RouterLink to="/signin" v-else>SignIn</RouterLink>
-          </div>
-          <div class="menu-burger" @click="toggleBurger">
-            <button class="menu-btn">
-              <span class="menu-btn__item"></span>
-            </button>
-            <ul v-if="showBurger" class="menu-list">
-              <li class="menu-list-item">
-                <RouterLink to="/">Home</RouterLink>
-              </li>
-              <li class="menu-list-item" v-if="authStore.isLoggedIn">
-                <RouterLink to="/profile">Profile</RouterLink>
-              </li>
-              <li class="menu-list-item" v-else>
-                <RouterLink to="/signup">SignUp</RouterLink>
-              </li>
-              <li class="menu-list-item" v-if="authStore.isLoggedIn"
-                  @click.prevent="logOut">
-                <a href="#" class="nav-link">Log out</a>
-              </li>
-              <li class="menu-list-item" v-else>
-                <RouterLink to="/signin">SignIn</RouterLink>
-              </li>
-            </ul>
-          </div>
-        </nav>
-      </div>
-    </header>
+  <div class="app">
+    <HeaderComponent :id_user="analysesStore.user.id"
+                     :is-logged-in="authStore.isLoggedIn"
+                     :logout="logOut"
+                     :mode="authStore.mode"
+                     :filter-analyses="analysesStore.filter"
+                     :filter-medications="medicalStore.filter"/>
     <main class="container">
       <RouterView />
     </main>
-  <footer ></footer>
+    <footer></footer>
+  </div>
+
 </template>
 
 <style scoped>
@@ -105,29 +49,35 @@ onMounted(() => {
 }
 body{
   font-family: 'Arial', 'sans-serif';
+  overflow: hidden;
 }
 html, body {
   min-height: 100vh;
   margin: 0;
 }
-
-header {
+.app{
+  width: 100%;
+  height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  margin: 0 auto;
+  font-weight: normal;
+}
+/*header {
   line-height: 1.5;
   max-height: 100vh;
   margin-right: 30px;
   margin-left: 30px;
-}
-.push {
-  height: 50px;
-}
+}*/
+
 footer{
   background-color: #8B5CF6;
-  width: 100%;
   height: 50px;
   opacity: 85%;
-  margin: auto 30px 0 30px;
+  margin: 20px 30px 0 30px;
+  border-radius: 5px;
 }
-
+/*
 .wrapper-head nav {
   height: 100%;
   background: #8B5CF6;;
@@ -135,7 +85,8 @@ footer{
   color: white;
   font-size: 14px;
   font-weight: bolder;
-}
+  border-radius: 5px;
+}*/
 .logo {
   display: block;
   margin: 0 auto 2rem;
@@ -144,7 +95,7 @@ footer{
   margin: 0 30px 0 30px;
 }
 
-nav {
+/*nav {
   padding-top: 1rem;
   padding-bottom: 1rem;
   width: 100%;
@@ -216,7 +167,7 @@ nav a:first-of-type {
   padding-left: 10px;
 }
 
-/*MENU BURGER*/
+!*MENU BURGER*!
 .menu-burger{
   display: none;
   position: relative;
@@ -274,8 +225,9 @@ nav a:first-of-type {
   position: absolute;
   top: 30px;
   right: 0;
-  visibility: visible; /*hidden; */
-  /* height: 0; */
+  visibility: visible; !*hidden; *!
+  z-index: 10;
+  !* height: 0; *!
 }
 .menu-list-item {}
 .menu-list-item a, .nav-link {
@@ -311,5 +263,5 @@ nav a:first-of-type {
     order: 2;
     max-width: 240px;
   }
-}
+}*/
 </style>

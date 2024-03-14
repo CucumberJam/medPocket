@@ -1,7 +1,7 @@
 <script setup>
 import Message from "primevue/message";
 
-const props = defineProps({
+defineProps({
   config: {
     error: String,
     success: String,
