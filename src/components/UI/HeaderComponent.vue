@@ -48,6 +48,7 @@ defineProps({
   overflow: visible;
 }
 nav {
+  padding: 10px 0;
   font-size: 14px;
   text-align: center;
   font-weight: bolder;

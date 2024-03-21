@@ -1,12 +1,12 @@
 <script setup>
-import { RouterView } from 'vue-router'
+import {RouterView, useRouter} from 'vue-router'
 import 'primeicons/primeicons.css'
 import {useAuthStore} from './stores/auth.js';
 import {useAnalysisStore} from "@/stores/analyses.store.js";
 import {useMedicationStore} from "@/stores/medications.store.js";
 import {onMounted} from "vue";
 import HeaderComponent from "@/components/UI/HeaderComponent.vue";
-
+const router = useRouter();
 
 const authStore = useAuthStore();
 const analysesStore = useAnalysisStore();
@@ -14,9 +14,8 @@ const medicalStore = useMedicationStore();
 
 
 const logOut = () => {
-  analysesStore.unsubscribe();
-  medicalStore.unsubscribe();
   authStore.logOut();
+  router.replace({path: '/'});
 }
 
 onMounted(() => {
@@ -50,6 +49,7 @@ onMounted(() => {
 body{
   font-family: 'Arial', 'sans-serif';
   overflow: hidden;
+  margin: 0;
 }
 html, body {
   min-height: 100vh;

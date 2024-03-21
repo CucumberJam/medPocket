@@ -1,18 +1,16 @@
 import { defineStore } from 'pinia'
 import {computed, ref,} from "vue";
-import {
-    doc,
-    addDoc,
-    collection,
-    getCountFromServer,
-    getDocs,
-    updateDoc,
-    deleteDoc,
-    query, onSnapshot,
-} from "firebase/firestore";
-import {db} from "@/firebase/firebase.config.js";
 import {useAuthStore} from "@/stores/auth.js";
 import colors from '../assets/colors.js';
+import {
+    addService,
+    deleteLastService,
+    getService, getSubService,
+    updateAddedService,
+    updateDeletedService,
+    updateMinMaxService
+} from "@/service/analyses.service.js";
+
 
 export const useAnalysisStore = defineStore('analyse', () => {
     const analyses =  ref([]);
@@ -26,14 +24,14 @@ export const useAnalysisStore = defineStore('analyse', () => {
         paginatePage: 1,
         paginateAmount: 10
     });
-    const unsubscribe = ref(null);
-    const authStore = useAuthStore();
     const user = computed (() => authStore.user);
-
+    const authStore = useAuthStore();
     const getAllAnalyses = async() => {
         config.value.showLoader = true;
-        let array = await getAnalyses(user.value.id, unsubscribe.value);
-        await getAnalysesSubList(user.value.id, array);
+
+        let array = await getService(user.value.id);
+        await getSubService(user.value.id, array);
+
         if(array.length){
             analyses.value = [...array];
             filteredAnalyses.value = array.sort((a, b) => new Date(b.date_last) - new Date(a.date_last));
@@ -41,12 +39,14 @@ export const useAnalysisStore = defineStore('analyse', () => {
         }
         config.value.showLoader = false;
     }
-    const getPages= computed(() => {
+
+/*    const getPages= computed(() => {
         return Math.ceil(filteredAnalyses.value.length / config.value.paginateAmount);
     });
     const needsPaginate = computed(()=> {
         return filteredAnalyses.value.length >= config.value.paginatePage;
     });
+
     const filteredByPagination = computed(() => {
         if(needsPaginate.value){
             let start = (config.value.paginatePage - 1) * config.value.paginateAmount;
@@ -66,39 +66,28 @@ export const useAnalysisStore = defineStore('analyse', () => {
     }
     const changeItemsOnPage = (num) => {
         config.value.paginateAmount = num;
-    };
+    };*/
     const add = async (newAnalysis) => {
-        const userRef = doc(db, 'users', user.value.id);
-        let found =
-            analyses.value.find(elem => elem.name === newAnalysis.name);
-        if(typeof found === 'undefined'){ //если такого анализа еще нет, то добавляем его в базу анализов
-            await insertNewAnalysis(user.value.id, newAnalysis, userRef);
-        }else{
-            const analysisRef = doc(userRef, 'analyses', found.id);
-
-            // добавить новый анализ в под-коллекцию анализов у анализа с нашим id:
-            await insertNewAnalysisSub(analysisRef, newAnalysis);
-
-            // обновить данные об анализе:
-            await upDateAnalysis(analysisRef, found, newAnalysis);
+        let found = analyses.value.find(elem => elem.name === newAnalysis.name);
+        if(!found)  {
+            let result = await addService(newAnalysis, user.value.id);
+            analyses.value.push(result);
+            filteredAnalyses.value = [...analyses.value];
+        }
+        else {
+            await updateAddedService(newAnalysis, user.value.id, found);
         }
         toggleShow();
     }
     const deleteAnalysis = async (analysisSubList) => {
         let found = analyses.value.find(elem => elem.id =  analysisSubList.id_analysis);
-        const isLast = found.list.length === 1;
-
-        const analysisRef = doc(db, 'users', user.value.id, 'analyses', analysisSubList.id_analysis);
-
-        await deleteDoc(doc(analysisRef, 'list', analysisSubList.id));
-
-        if(isLast) {
-            // если это был последний в под-коллекции анализов, то его удаляем и из основного списка:
-            await deleteDoc(analysisRef);
+        if(found.list.length === 1) {
+            let resultId = await deleteLastService(user.value.id, analysisSubList);
+            analyses.value = analyses.value.filter(analysis => analysis.id !== resultId);
         } else{
-            //update analysis
-            await upDateAnalysis(analysisRef);
+            await updateDeletedService(user.value.id, analysisSubList.id, found);
         }
+        filteredAnalyses.value = [...analyses.value];
     }
     const filter = (searchLine = null) => {
         let array = [];
@@ -125,9 +114,7 @@ export const useAnalysisStore = defineStore('analyse', () => {
     });
 
     const changeMinMax = async(analysisId, key, value) =>{
-        const analysisRef = doc(db, 'users', authStore.user.id,'analyses', analysisId);
-        if(key === 'min') await updateSingleKeyAnalysis(analysisRef, 'min', value);
-        else await updateSingleKeyAnalysis(analysisRef, 'max', value);
+        await updateMinMaxService(analysisId, key, value, user.value.id);
     }
 
     const chartAnalysesConfig = computed(()=> {
@@ -152,169 +139,8 @@ export const useAnalysisStore = defineStore('analyse', () => {
     });
 
     return {
-        config, user, analyses, filteredByPagination, filteredAnalyses,
-        getPages, changePaginate, changeItemsOnPage,
+        config, user, analyses, filteredAnalyses,
         toggleShow, getAllAnalyses, deleteAnalysis, changeMinMax,
-        add, filter, isDangerSub, totalCount, chartAnalysesConfig, filteredKeys,
-        unsubscribe
+        add, filter, isDangerSub, totalCount, chartAnalysesConfig, filteredKeys
     }
 })
-
-// service functions:
-const insertNewAnalysis = async(userId, newAnalysis, userRef) => {
-    let analysisRef;
-
-    try{
-        analysisRef = await  addDoc(collection(userRef, 'analyses'), {
-            name: newAnalysis.name,
-            date_last: newAnalysis.date,
-            min: +newAnalysis.min,
-            max: +newAnalysis.max,
-            value_avg: +newAnalysis.value,
-            total_cost: +newAnalysis.cost,
-            id_analysis: userRef.id
-        });
-        console.log("New analysis was written in DB analyses! " + analysisRef.id);
-        console.log(analysisRef);
-
-    }catch (e) {
-        console.error("Error adding analysisDoc in collection: ", e);
-    }
-
-    // а также добавляем его в под-коллекцию этого анализа:
-    await insertNewAnalysisSub(analysisRef, newAnalysis);
-}
-const insertNewAnalysisSub = async (analysisRef, newAnalysis) => {
-    try{
-        const analysisSubRef = await addDoc(collection(analysisRef, 'list'), {
-            date: newAnalysis.date,
-            min: +newAnalysis.min,
-            max: +newAnalysis.max,
-            value: +newAnalysis.value,
-            cost: +newAnalysis.cost,
-            id_analysis: analysisRef.id
-        });
-        console.log("New analysis was written in subcollection of analysis " + analysisSubRef.id);
-    } catch(e){
-        console.log("Error adding analysisDoc in subcollection: ", e);
-    }
-}
-const upDateAnalysis = async(analysisRef, oldAnalysis = null, newAnalysis = null) => {
-    let value_avg = 0;
-    let total_cost = 0;
-    let date_last = '';
-
-    // обновление при добавлении:
-    if(oldAnalysis && newAnalysis){
-        // пересчитать среднее значение, стоимость и последнюю дату:
-        const coll = collection(analysisRef, 'list');
-        const snapshot = await getCountFromServer(coll);
-
-        let numsDocs = snapshot.data().count;
-        value_avg = ((oldAnalysis.value_avg * (numsDocs-1) + newAnalysis.value) / numsDocs).toFixed(2);;
-        total_cost = oldAnalysis.total_cost + newAnalysis.cost;
-        date_last = (oldAnalysis.date_last > newAnalysis.date)? oldAnalysis.date_last : newAnalysis.date;
-
-    }// обновление при удалении:
-    else{
-        const listAnalyses = await getAnalysisSubList(analysisRef);
-        date_last = listAnalyses[0].date;
-
-        listAnalyses.forEach(analysisList => {
-            if(date_last > analysisList.date) date_last = analysisList.date;
-            value_avg += parseFloat(analysisList.value);
-            total_cost += parseFloat(analysisList.cost);
-        });
-        value_avg = (value_avg / listAnalyses.length).toFixed(2);
-    }
-    // перезаписать полученные значения в БД анализа:
-    try{
-        await updateDoc(analysisRef, {
-            date_last: date_last,
-            value_avg: value_avg,
-            total_cost: total_cost
-        });
-    }catch (e) {
-        console.log('Error while updating analysis in DB: ' + e);
-    }
-
-}
-const getAnalyses = async (userId, unsubscribe) => {
-    let array = [];
-    const q = query(collection(db, 'users', userId, 'analyses'));
-    try{
-        const queryAnalyses = await getDocs(q);
-        queryAnalyses.forEach( (doc) => {
-            let analysis = {
-                id: doc.id,
-                ...doc.data()
-            };
-            array.push(analysis);
-        });
-        updateRealTimeDB(q, unsubscribe);
-    }catch (e) {
-        console.log('error while getting all analyses from DB: '+ e)
-    }
-    return array;
-}
-const getAnalysesSubList = async (userId, array) =>{
-    try{
-        // по id получить список под-коллекции анализа и добавить ему в свойство list:
-        for(const analysis of array){
-            let subArray = [];
-            const q = query(collection(db, 'users', userId, 'analyses', analysis.id, 'list'));
-            const querySubList = await getDocs(q);
-            querySubList.forEach((doc) => {
-                let analysisList = {
-                    id: doc.id,
-                    ...doc.data()
-                };
-                subArray.push(analysisList);
-            });
-            subArray.sort((a, b) => new Date(b.date) - new Date(a.date));
-            analysis.list = [...subArray];
-        }
-    }catch (e) {
-        console.log('error while getting sub list for analyses from DB: '+ e)
-    }
-}
-const getAnalysisSubList = async (analysisRef) =>{
-    let subArray = [];
-    try{
-        const q = query(collection(analysisRef, 'list'));
-        const querySubList = await getDocs(q);
-        querySubList.forEach((doc) => {
-            let analysisList = {
-                id: doc.id,
-                ...doc.data()
-            };
-            subArray.push(analysisList);
-        });
-    }catch (e) {
-        console.log('error while getting sub list for analysis from DB: '+ doc.data().id_analysis + e);
-    }
-    return subArray;
-}
-
-const updateSingleKeyAnalysis = async (analysisRef, key, value)=>{
-    let data = {};
-    data[key] = value;
-    try{
-        await updateDoc(analysisRef, data);
-    }catch (e) {
-        console.log('Error while changing min of analysis in DB: ' + e);
-    }
-}
-
-
-
-const updateRealTimeDB = (query, unsubscribe) => {
-    unsubscribe = onSnapshot(query, (snapshot) => {
-        snapshot.docChanges().forEach((change) => {
-            console.log("Chane in snapchat analysis: ", change);
-        }, (error) => {
-            console.log("Error in snapchat analysis: ", error);
-            unsubscribe();
-        });
-    });
-}

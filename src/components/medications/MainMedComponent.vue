@@ -1,6 +1,5 @@
 <script setup>
 import ModalViewComponent from "@/components/UI/ModalViewComponent.vue";
-import PieChartComponent from "@/components/UI/PieChartComponent.vue";
 import Dropdown from "primevue/dropdown";
 import LoaderComponent from "@/components/UI/LoaderComponent.vue";
 import Button from "primevue/button";
@@ -9,6 +8,8 @@ import MedicationsComponent from "@/components/medications/MedicationsComponent.
 import {useMedicationStore} from "@/stores/medications.store.js";
 import {ref} from "vue";
 import PaginateComponent from "@/components/UI/PaginateComponent.vue";
+import ChartBoxComponent from "@/components/widgets/ChartBoxComponent.vue";
+import ButtonAddComponent from "@/components/UI/ButtonAddComponent.vue";
 
 
 const medicalStore = useMedicationStore();
@@ -26,17 +27,13 @@ const sort = () => {
 
 <template>
   <main>
-    <div class="chart-box">
-      <div class="total-head">
-        <div class="btn-add mob-btn">
-          <Button class="btn" label="Add new medication" @click="medicalStore.toggleShow"/>
-        </div>
-        <p>Expenses:</p><span>{{medicalStore.totalCount}} RUB</span>
-      </div>
-      <div class="pie-chart">
-        <PieChartComponent :chart-data="medicalStore.chartMedicationsConfig"/>
-      </div>
-    </div>
+    <ChartBoxComponent :chart-config="medicalStore.chartMedicationsConfig"
+                       :total-count="medicalStore.totalCount">
+      <ButtonAddComponent :is-mobile="true"
+                          :label="'Add new medication'"
+                          :toggle-form="medicalStore.toggleShow"/>
+    </ChartBoxComponent>
+
     <div class="panel">
       <Dropdown
           v-model="selectedFilterMed.name"
@@ -56,16 +53,19 @@ const sort = () => {
           @change="sort"
           showClear placeholder="patient:"
           class="w-full md:w-14rem" />
-      <div class="btn-add desktop-btn">
-        <Button class="btn" label="Add new medication" @click="medicalStore.toggleShow"/>
-      </div>
+
+      <ButtonAddComponent :is-mobile="false"
+                          :label="'Add new medication'"
+                          :toggle-form="medicalStore.toggleShow"/>
     </div>
+
       <ModalViewComponent v-if="medicalStore.config.showForm"
                           @exit="medicalStore.toggleShow"
                           :config="medicalStore.config"
                           :title="'Fill fields below about medication:'">
         <FormMedicationComponent/>
       </ModalViewComponent>
+
       <div>
         <LoaderComponent v-if="medicalStore.config.showLoader"/>
         <MedicationsComponent/>

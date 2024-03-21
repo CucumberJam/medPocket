@@ -24,7 +24,7 @@ const toggleBurger = () => {
       </li>
 
       <li class="menu-list-item" v-if="isLoggedIn">
-        <RouterLink to="/profile">Profile</RouterLink>
+        <RouterLink to="/analyses">Profile</RouterLink>
       </li>
 
       <li class="menu-list-item" v-else>
@@ -32,7 +32,7 @@ const toggleBurger = () => {
       </li>
 
       <li class="menu-list-item" v-if="isLoggedIn"
-          @click.prevent="logout">
+          @click="logout">
         <a href="#" class="nav-link">Log out</a>
       </li>
 

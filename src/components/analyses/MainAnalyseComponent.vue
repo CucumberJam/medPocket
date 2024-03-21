@@ -1,14 +1,13 @@
 <script setup>
 import ModalViewComponent from "@/components/UI/ModalViewComponent.vue";
-import PieChartComponent from "@/components/UI/PieChartComponent.vue";
 import Dropdown from "primevue/dropdown";
 import AnalysesComponent from "@/components/analyses/AnalysesComponent.vue";
 import FormAnalysisComponent from "@/components/analyses/FormAnalysisComponent.vue";
 import LoaderComponent from "@/components/UI/LoaderComponent.vue";
-import Button from "primevue/button";
-import PaginateComponent from "@/components/UI/PaginateComponent.vue";
 import {useAnalysisStore} from "@/stores/analyses.store.js";
 import {ref} from "vue";
+import ChartBoxComponent from "@/components/widgets/ChartBoxComponent.vue";
+import ButtonAddComponent from "@/components/UI/ButtonAddComponent.vue";
 
 const selectedFilterAnalysis = ref('');
 const analyseStore = useAnalysisStore();
@@ -20,44 +19,46 @@ const sort = () => {
 
 <template>
   <main>
-      <div class="chart-box">
-      <div class="total-head">
-        <div class="btn-add mob-btn">
-          <Button class="btn" label="Add new analysis" @click="analyseStore.toggleShow"/>
-        </div>
-        <p>Expenses:</p><span>{{analyseStore.totalCount}} RUB</span>
-      </div>
-      <div class="pie-chart">
-        <PieChartComponent :chart-data="analyseStore.chartAnalysesConfig"/>
-      </div>
-    </div>
+    <ChartBoxComponent :total-count="+analyseStore.totalCount"
+                       :chart-config="analyseStore.chartAnalysesConfig">
+
+      <ButtonAddComponent :toggle-form="analyseStore.toggleShow"
+                          :label="'Add new analysis'" :is-mobile="true" />
+    </ChartBoxComponent>
+
+
       <div class="panel">
         <Dropdown v-model="selectedFilterAnalysis"
                   :options="analyseStore.filteredKeys"
                   @change="sort"
                   showClear placeholder="select analysis"
                   class="w-full md:w-14rem dropdown" />
-        <div class="btn-add desktop-btn">
-          <Button class="btn" label="Add new analysis" @click="analyseStore.toggleShow"/>
-        </div>
+        <ButtonAddComponent :toggle-form="analyseStore.toggleShow"
+                            :label="'Add new analysis'" :is-mobile="false" />
       </div>
+
       <ModalViewComponent v-if="analyseStore.config.showForm"
                           @exit="analyseStore.toggleShow"
                           :config="analyseStore.config"
                           :title="'Fill fields below about analysis:'">
         <FormAnalysisComponent/>
       </ModalViewComponent>
+
       <div>
         <LoaderComponent v-if="analyseStore.config.showLoader"/>
-        <AnalysesComponent v-else :total-count="analyseStore.totalCount"
-                          :filtered-analyses="analyseStore.filteredByPagination"/>
+        <AnalysesComponent v-else :total-count="+analyseStore.totalCount"
+                          :filtered-analyses="analyseStore.filteredAnalyses"/>
       </div>
-      <PaginateComponent :num="analyseStore.getPages"
+
+<!--      <PaginateComponent :num="analyseStore.getPages"
                        :chosenPage="analyseStore.config.paginatePage"
                        @paginate="analyseStore.changePaginate"
-                       @change="analyseStore.changeItemsOnPage"/>
+                       @change="analyseStore.changeItemsOnPage"/>-->
+
   </main>
 </template>
+
+
 
 <style scoped>
 main{
@@ -65,6 +66,9 @@ main{
   flex-direction: column;
   margin-bottom: 60px;
   overflow: visible;
+}
+.dropdown svg{
+  margin: auto;
 }
 .title h3{
   margin: 0;

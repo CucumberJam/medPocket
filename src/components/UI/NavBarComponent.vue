@@ -9,9 +9,9 @@ defineProps({
 <template>
   <div  class="navigation_item nav-bar">
     <RouterLink to="/">Home</RouterLink>
-    <RouterLink to="/profile" v-if="isLoggedIn">Profile</RouterLink>
+    <RouterLink to="/analyses" v-if="isLoggedIn">Profile</RouterLink>
     <RouterLink to="/signup" v-else>SignUp</RouterLink>
-    <div class="logout" v-if="isLoggedIn" @click.prevent="logout">
+    <div class="logout" v-if="isLoggedIn" @click="logout">
       <i class="pi pi-sign-out" style="font-size: 1.5rem"></i>
     </div>
     <RouterLink to="/signin" v-else>SignIn</RouterLink>

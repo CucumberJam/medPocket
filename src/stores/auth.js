@@ -2,8 +2,7 @@ import {ref} from 'vue';
 import { defineStore } from 'pinia';
 import {auth, db} from '../firebase/firebase.config.js';
 import { setDoc , doc,  getDoc } from "firebase/firestore";
-import { getAuth,
-    createUserWithEmailAndPassword,
+import { createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
     onAuthStateChanged,
     signOut, sendPasswordResetEmail} from "firebase/auth";
@@ -30,7 +29,7 @@ export const useAuthStore = defineStore('auth', () => {
     const isLoggedIn = ref(false);
     const mode = ref('Analyses');
 
-    const auth = getAuth();
+/*    const auth = getAuth();*/
     const authenticateUser = async (type, email, password, name = '') => {
         error.value = '';
         loader.value = true;
@@ -44,14 +43,10 @@ export const useAuthStore = defineStore('auth', () => {
                             name: name,
                             email: email
                         });
-                        console.log("New user added in DB with ID: ", userCredential.user.uid);
                     } catch (e) {
                         console.error("Error adding New user in DB: ", e);
                     }
-                    console.log(userCredential.user);
                 }).catch(errorHandler);
-
-
         } else {
             signInWithEmailAndPassword(auth, email, password)
                 .then((userCredential) => {
@@ -70,10 +65,7 @@ export const useAuthStore = defineStore('auth', () => {
         }, 3000);
     }
     const logOut = () => {
-        signOut(auth).then(async () => {
-
-            console.log('Sign-out successful.');
-        }).catch(errorHandler);
+        signOut(auth).then(async () => {}).catch(errorHandler);
     }
 
     const forgotPassword = (emailInput) => {
@@ -85,10 +77,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
     const init = () => {
         onAuthStateChanged(auth, async (userCredentials) => {
-            console.log('auth state changed: ' + userCredentials);
             if (userCredentials) {
-                console.log('user id: ' + userCredentials.uid);
-
                 isLoggedIn.value = true;
                 const docRef = doc(db, 'users', userCredentials.uid);
                 const docSnap = await getDoc(docRef);
@@ -100,7 +89,6 @@ export const useAuthStore = defineStore('auth', () => {
                 await analyseStore.getAllAnalyses();
                 await medicalStore.getMedications();
 
-                //router.push('/profile');
                 router.push({path: 'analyses'});
             }else{
                 user.value = {};

@@ -2,6 +2,7 @@ import 'primevue/resources/themes/aura-light-green/theme.css';
 import 'primevue/resources/themes/aura-light-purple/theme.css';
 import 'primeicons/primeicons.css';
 import 'primeflex/primeflex.css';
+import './assets/main.css'
 
 import { createApp } from 'vue';
 import ConfirmationService from 'primevue/confirmationservice';
