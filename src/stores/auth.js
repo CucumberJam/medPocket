@@ -29,7 +29,7 @@ export const useAuthStore = defineStore('auth', () => {
     const isLoggedIn = ref(false);
     const mode = ref('Analyses');
 
-/*    const auth = getAuth();*/
+
     const authenticateUser = async (type, email, password, name = '') => {
         error.value = '';
         loader.value = true;
@@ -75,7 +75,7 @@ export const useAuthStore = defineStore('auth', () => {
             })
             .catch(error => console.log(error));
     }
-    const init = () => {
+    const init = async () => {
         onAuthStateChanged(auth, async (userCredentials) => {
             if (userCredentials) {
                 isLoggedIn.value = true;

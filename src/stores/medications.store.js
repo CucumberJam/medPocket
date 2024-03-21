@@ -1,18 +1,13 @@
 import { defineStore } from 'pinia'
 import {computed, ref} from "vue";
-import {addDoc, collection, deleteDoc, doc, getDocs, query, onSnapshot} from "firebase/firestore";
-import {db} from "@/firebase/firebase.config.js";
 import {useAuthStore} from "@/stores/auth.js";
 import colors from "@/assets/colors.js";
+import {addService, deleteService, getFilteredKeysService, getService} from "@/service/medication.service.js";
 
 export const useMedicationStore = defineStore('medications', () => {
     const medications =  ref([]);
     const filteredMedications =  ref([]);
-    const filteredKeys = ref({
-        names: [],
-        doctors: [],
-        patients: []
-    });
+    const filteredKeys = ref({});
     const config = ref({
         error: '',
         success: '',
@@ -21,87 +16,30 @@ export const useMedicationStore = defineStore('medications', () => {
         paginatePage: 1,
         paginateAmount: 10
     });
-    const unsubscribe = ref(null);
-    const authStore = useAuthStore();
+    const user = computed (() => useAuthStore().user);
     const toggleShow = () =>{
         config.value.showForm = !config.value.showForm;
     }
     const getMedications = async() => {
         config.value.showLoader = true;
 
-        let array = [];
-        const q = query(collection(db, 'users', authStore.user.id, 'medications'));
-        try{
-            const queryMedications = await getDocs(q);
-            queryMedications.forEach( (doc) => {
-                let medication = {
-                    id: doc.id,
-                    ...doc.data()
-                };
-                array.push(medication);
-            });
-        }catch (e) {
-            console.log('error while getting all analyses from DB: '+ e)
-        }
+        let array = await getService(user.value.id);
         medications.value = [...array];
         filteredMedications.value = array.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-        let names = new Set();
-        let doctors = new Set();
-        let patients = new Set();
-        array.forEach(elem => {
-            names.add(elem.name)
-            doctors.add(elem.doctor);
-            patients.add(elem.patient);
-        });
-        filteredKeys.value.names = Array.from(names);
-        filteredKeys.value.doctors = Array.from(doctors);
-        filteredKeys.value.patients = Array.from(patients);
+        filteredKeys.value = getFilteredKeysService(array);
 
         config.value.showLoader = false;
-
-        unsubscribe.value = onSnapshot(q, (snapshot) => {
-            snapshot.docChanges().forEach((change) => {
-                if (change.type === "added") {
-                    console.log("New medication: ", change.doc.data());
-                }
-                if (change.type === "modified") {
-                    console.log("Modified medication: ", change.doc.data());
-                }
-                if (change.type === "removed") {
-                    console.log("Removed medication: ", change.doc.data());
-                }
-            }, (error) => {
-                console.log("Error in snapchat city: ", error);
-                unsubscribe.value();
-            });
-        });
     }
     const add = async(newMed) => {
-        const userRef = doc(db, 'users', authStore.user.id);
-        let medRef;
-        try{
-            medRef = await  addDoc(collection(userRef, 'medications'), {
-                name: newMed.name,
-                date: newMed.date,
-                cost: +newMed.cost,
-                doctor: newMed.doctor,
-                patient: newMed.patient,
-                check: newMed.check,
-                id_user: authStore.user.id
-            });
-            console.log("New analysis was written in DB analyses! " + medRef.id);
-
-        }catch (e) {
-            console.error("Error adding analysisDoc in collection: ", e);
-        }
+        let result = addService(user.value.id, newMed);
+        medications.value.push(result);
+        filteredMedications.value = [...medications.value];
     }
-    const remove = async(med) => {
-        try{
-            await deleteDoc(doc(db, 'users', authStore.user.id, 'medications', med.id));
-        }catch (e) {
-            console.log('Error while deleting medication from DB: ' + e);
-        }
+    const remove = async(id) => {
+        await deleteService(user.value.id, id);
+        medications.value = medications.value.filter(analysis => analysis.id !== id);
+        filteredMedications.value = [...medications.value];
     }
 
     const totalCount = computed(() => {
@@ -153,7 +91,7 @@ export const useMedicationStore = defineStore('medications', () => {
         filteredMedications.value = [...array];
     }
 
-    const getPages= computed(() => {
+/*    const getPages= computed(() => {
         return Math.ceil(filteredMedications.value.length / config.value.paginateAmount);
     });
     const needsPaginate = computed(()=> {
@@ -178,12 +116,10 @@ export const useMedicationStore = defineStore('medications', () => {
     }
     const changeItemsOnPage = (num) => {
         config.value.paginateAmount = num;
-    };
+    };*/
 
     return {
         filteredMedications,  config, totalCount, chartMedicationsConfig,
         getMedications, toggleShow, add, remove, filter, filteredKeys,
-        getPages, filteredByPagination, changePaginate, changeItemsOnPage,
-        unsubscribe
     }
 });

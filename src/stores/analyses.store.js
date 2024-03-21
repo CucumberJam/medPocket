@@ -24,8 +24,7 @@ export const useAnalysisStore = defineStore('analyse', () => {
         paginatePage: 1,
         paginateAmount: 10
     });
-    const user = computed (() => authStore.user);
-    const authStore = useAuthStore();
+    const user = computed (() => useAuthStore().user);
     const getAllAnalyses = async() => {
         config.value.showLoader = true;
 
@@ -39,6 +38,7 @@ export const useAnalysisStore = defineStore('analyse', () => {
         }
         config.value.showLoader = false;
     }
+
 
 /*    const getPages= computed(() => {
         return Math.ceil(filteredAnalyses.value.length / config.value.paginateAmount);

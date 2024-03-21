@@ -2,7 +2,6 @@
 import ModalViewComponent from "@/components/UI/ModalViewComponent.vue";
 import Dropdown from "primevue/dropdown";
 import LoaderComponent from "@/components/UI/LoaderComponent.vue";
-import Button from "primevue/button";
 import FormMedicationComponent from "@/components/medications/FormMedicationComponent.vue";
 import MedicationsComponent from "@/components/medications/MedicationsComponent.vue";
 import {useMedicationStore} from "@/stores/medications.store.js";
@@ -28,7 +27,7 @@ const sort = () => {
 <template>
   <main>
     <ChartBoxComponent :chart-config="medicalStore.chartMedicationsConfig"
-                       :total-count="medicalStore.totalCount">
+                       :total-count="+medicalStore.totalCount">
       <ButtonAddComponent :is-mobile="true"
                           :label="'Add new medication'"
                           :toggle-form="medicalStore.toggleShow"/>
@@ -70,10 +69,10 @@ const sort = () => {
         <LoaderComponent v-if="medicalStore.config.showLoader"/>
         <MedicationsComponent/>
       </div>
-    <PaginateComponent :num="medicalStore.getPages"
+<!--    <PaginateComponent :num="medicalStore.getPages"
                        :chosenPage="medicalStore.config.paginatePage"
                        @paginate="medicalStore.changePaginate"
-                       @change="medicalStore.changeItemsOnPage"/>
+                       @change="medicalStore.changeItemsOnPage"/>-->
   </main>
 
 </template>

@@ -50,6 +50,8 @@ const formatData = computed(()=>{
       if(day < 10) day = '0'+ day;
 
       object[key] = `${year}/${month}/${day}`;
+    }  else if(key === 'cost'){
+      object[key] = +newAnalysis.value[key];
     } else object[key] = newAnalysis.value[key];
   }
   return object;

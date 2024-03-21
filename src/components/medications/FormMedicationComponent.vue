@@ -51,6 +51,8 @@ const formatData = computed(()=>{
       if(day < 10) day = '0'+ day;
 
       object[key] = `${day}.${month}.${year}`;
+    } else if(key === 'cost'){
+      object[key] = +newMedication.value[key];
     } else object[key] = newMedication.value[key];
   }
   return object;

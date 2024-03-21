@@ -1,6 +1,6 @@
 <script setup>
 import 'primeicons/primeicons.css'
-const props = defineProps({
+defineProps({
   medication: {
     id: String,
     name: String,
@@ -19,7 +19,7 @@ const props = defineProps({
     <td>
       <div class="icon">
         <i class="pi pi-trash" style="font-size: 1rem; color: #8B5CF6"
-           @click="$emit('delete', medication)"></i>
+           @click="$emit('delete', medication.id)"></i>
       </div>
     </td>
     <td>{{medication.name}}</td>

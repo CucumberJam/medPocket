@@ -79,35 +79,6 @@ main{
   justify-content: space-between;
   margin: 0 10px;
 }
-
-.btn-add {
-  display: flex;
-  justify-content: end;
-  margin: 0 20px;
-}
-.desktop-btn{
-  display: flex;
-}
-.mob-btn{
-  display: none;
-}
-.chart-box{
-  max-width: 35%;
-  max-height: 300px;
-  margin: 0 20%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: start;
-  align-self: end;
-}
-.total-head{
-  border: none;
-  padding: 0 10px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
 .total-head span {
   margin-left: 20px;
   color: red;
@@ -118,6 +89,7 @@ main{
   width: 100%;
   max-height: 40px;
   height: 100%;
+  margin: 0 0 5px 0;
 }
 @media screen and (max-width: 696px){
   .chart-box{
@@ -127,14 +99,6 @@ main{
     align-self: normal;
     margin: 0 ;
   }
-  .desktop-btn{
-    display: none;
-  }
-  .mob-btn{
-    display: flex;
-    margin: 0;
-    align-self: start;
-  }
   .mob-btn button{
     font-size: 14px;
     padding: 15px;
@@ -142,15 +106,8 @@ main{
   .total-head span{
     margin: 0;
   }
-  .total-head{
-    flex-direction: column;
-    align-items: start;
-  }
   td{
     padding: 0;
-  }
-  .pie-chart{
-    max-width: 300px;
   }
 
 }
@@ -165,15 +122,7 @@ main{
     font-size: 12px;
   }
 }
-@media screen and (max-width: 488px){
-  .pie-chart{
-    max-width: 240px;
-  }
-}
 @media screen and (max-width: 466px){
-  .pie-chart{
-    max-width: 180px;
-  }
   .btn-add button{
     font-size: 12px;
     padding: 8px 6px;
